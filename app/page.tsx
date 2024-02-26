@@ -1,19 +1,25 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
+import { addTodo, deleteTodo } from "@/redux/slices/todoSlice";
 import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<{ name: string }[]>(([]));
   const [taskName, setTaskName] = useState<string>('')
+  const todo = useSelector((state: any) => state.todo);
+  const dispatch = useDispatch();
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    axios.post("http://localhost:5000/todoList", { name: taskName }).then(res => {
-      setTasks([...tasks, { name: taskName }])
-      setTaskName('')
-    })
+    dispatch(addTodo(taskName));
+    setTaskName('')
   }
+  const handleDeleteTodo = (id: any) => {
+    dispatch(deleteTodo(id));
+  };
+  const handleEditTodo = (id: any) => {
+    dispatch(deleteTodo(id));
+  };
 
   return (
     <div className="w-1/3 mx-auto h-[100vh] flex flex-col items-center justify-center">
@@ -22,10 +28,13 @@ export default function Home() {
         <Button>Add</Button>
       </form>
       <div className="w-[316.8px]">
-        {tasks.map((task, i) => (
-          <div className="border rounded-lg p-4 mt-4 flex items-center justify-between " key={i}>
-            <p>{task.name}</p>
-            <Button variant="destructive" onClick={() => setTasks(tasks.filter(t => t.name !== task.name))}>x</Button>
+        {todo?.map((task: any) => (
+          <div className="border rounded-lg p-4 mt-4 flex items-center justify-between " key={task.id}>
+            <p>{task.text}</p>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => handleDeleteTodo(task.id)}>Edit</Button>
+              <Button variant="destructive" onClick={() => handleEditTodo(task.id)}>X</Button>
+            </div>
           </div>
         ))}
       </div>
